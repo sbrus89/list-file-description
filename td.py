@@ -2,10 +2,10 @@
 
 import subprocess
 import sys
-import xattr
 import os
 import re
 import string
+import getopt
 import pprint
 
 # ansi codes for color terminal output
@@ -19,11 +19,26 @@ RED = '\033[31m'
 UNDERLINE = '\033[4m'
 ENDC = '\033[0m'
 BOLD = "\033[1m"
+ 
+level = None
+try:
+  opts, args = getopt.getopt(sys.argv[1:],"L:")
+  for opt, arg in opts:
+    if opt == "-L":
+      level = arg    
+except getopt.GetoptError: 
+  level = None  
 
 # get tree ouput
-cmd = "tree -S"
+if level:
+  cmd = "tree -S -L " + level
+else:  
+  cmd = "tree -S" 
 tree = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]
-cmd = "tree -C"
+if level:
+  cmd = "tree -C -L " + level
+else:  
+  cmd = "tree -C" 
 tree_out= subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]
 tree_color = tree_out.splitlines()
 tree_filter = filter(lambda x: x in string.printable, tree)

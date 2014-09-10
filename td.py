@@ -20,26 +20,21 @@ UNDERLINE = '\033[4m'
 ENDC = '\033[0m'
 BOLD = "\033[1m"
 
+# get tree ouput
 cmd = "tree -S"
 tree = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]
 cmd = "tree -C"
 tree_out= subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]
 tree_color = tree_out.splitlines()
-
-#tree = ansi_escape.sub("",tree_color)
-
-#print tree_out
-#print tree_color
 tree_filter = filter(lambda x: x in string.printable, tree)
-#print tree_filter
 
+
+# build file/directory paths from tree
 pwd = os.getcwd()
-
 tree_ls = tree_filter.split("\n")
 n = len(tree_ls)
 path_ls = []
 path_ls.append(pwd)
-
 direc = pwd
 for i in range(1,n-3):
   
@@ -55,8 +50,24 @@ for i in range(1,n-3):
   elif nsp_i > nsp_ip1:
     file_name = direc + "/" + tree_ls[i].strip()
     path_ls.append(file_name)
-    direc = direc.rpartition("/")[0]
+    diff = nsp_i-nsp_ip1
+    if diff == 3:      
+      direc = direc.rpartition("/")[0]
+    else: 
+      depth = 0
+      while diff > 0 and (diff % 4) != 0:
+        diff = diff - 3
+        depth = depth + 1
+      while diff > 0: 
+        diff = diff - 4
+        depth = depth + 1
+      direc_sp = direc.split("/")
+      ndirec = len(direc_sp)
+      direc = "/".join(direc.split("/")[0:ndirec-depth])
+      
+      
     
+# get extended attributes    
 desc_ls = []
 n = len(path_ls)
 for i in range(0,n):
@@ -81,6 +92,8 @@ for i in range(0,n):
 #print pprint.pprint(path_ls)
 #print pprint.pprint(desc_ls)
 
+
+# print tree output and extended attributes
 print " "
 print "--------------------------------------------------------"
 for i in range(0,n):

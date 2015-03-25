@@ -28,6 +28,15 @@ if not os.path.exists(full_name):
   print "fcmnt: file does not exist"
   raise SystemExit(0)
 
+# check if owner has write premissions
+#   - This may need to be considered more carefully if used when different owners/groups are involved
+cmd = "ls -l " + full_name  
+ls_output = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]
+if ls_output[2] != "w":
+  print "fcmnt: owner does not have write premissions"
+  print ls_output
+  raise SystemExit(0)
+
 # check if object already has extended attributes  
 cmd = "getfattr -d --absolute-names " + full_name
 existing_attr = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]

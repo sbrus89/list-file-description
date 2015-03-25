@@ -11,10 +11,10 @@ editor = "nano"
 # check argument list
 n = len(sys.argv)
 if n > 2:
-  print "fcmnt: too many arguments"
+  print "fd: too many arguments"
   raise SystemExit(0)
 if n < 2:
-  print "fcmnt: supply a file name"
+  print "fd: supply a file name"
   raise SystemExit(0)
 
 #get object name and current directory  
@@ -25,7 +25,7 @@ full_name = pwd+"/"+file_name
 
 # check if object exists
 if not os.path.exists(full_name):
-  print "fcmnt: file does not exist"
+  print "fd: file does not exist"
   raise SystemExit(0)
 
 # check if owner has write premissions
@@ -33,7 +33,7 @@ if not os.path.exists(full_name):
 cmd = "ls -l " + full_name  
 ls_output = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]
 if ls_output[2] != "w":
-  print "fcmnt: owner does not have write premissions"
+  print "fd: owner does not have write premissions"
   print ls_output
   raise SystemExit(0)
 
@@ -79,7 +79,7 @@ for line in cmnt_sp:
 cmnt = "\n".join(cmnt_ls)
 
 if cmnt == "":
-  print "fcmnt: comment is empty, exiting..."
+  print "fd: comment is empty, exiting..."
   raise SystemExit(0)
 
 # Add the inputed comment as an extended attribute

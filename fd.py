@@ -30,7 +30,7 @@ if not os.path.exists(full_name):
 
 # check if owner has write premissions
 #   - This may need to be considered more carefully if used when different owners/groups are involved
-cmd = "ls -l " + full_name  
+cmd = "ls -ld " + full_name  
 ls_output = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]
 if ls_output[2] != "w":
   print "fd: owner does not have write premissions"

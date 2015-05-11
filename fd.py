@@ -33,9 +33,14 @@ if not os.path.exists(full_name):
 cmd = "ls -ld " + full_name  
 ls_output = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]
 if ls_output[2] != "w":
-  print "fd: owner does not have write premissions"
-  print ls_output
-  raise SystemExit(0)
+  try:
+    print "fd: attempting to add write premissions..."
+    cmd = "chmod u+w " + full_name        
+    chmod_output = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]     
+  except:
+    print "fd: owner does not have write premissions"  
+    print ls_output
+    raise SystemExit(0)
 
 # check if object already has extended attributes  
 cmd = "getfattr -d --absolute-names " + full_name

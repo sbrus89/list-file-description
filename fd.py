@@ -2,7 +2,7 @@
 
 import subprocess
 import sys
-import xattr
+#import xattr
 import os
 import re
 
@@ -83,4 +83,7 @@ if cmnt == "":
   raise SystemExit(0)
 
 # Add the inputed comment as an extended attribute
-xattr.setxattr(file_name, "user.comment", cmnt)
+#xattr.setxattr(file_name, "user.comment", cmnt)
+
+cmd = 'setfattr -n user.comment -v "' + cmnt + '" ' + full_name
+subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]

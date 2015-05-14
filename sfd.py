@@ -32,11 +32,14 @@ if not os.path.exists(full_name):
 #   - This may need to be considered more carefully if used when different owners/groups are involved
 cmd = "ls -ld " + full_name  
 ls_output = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]
+
+prem_mod = 0
 if ls_output[2] != "w":
   try:
-    print "sfd: attempting to add write premissions..."
+    #print "sfd: attempting to add write premissions..."
     cmd = "chmod u+w " + full_name        
     chmod_output = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]     
+    prem_mod = 1
   except:
     print "sfd: owner does not have write premissions"  
     print ls_output
@@ -92,3 +95,8 @@ if cmnt == "":
 
 cmd = 'setfattr -n user.comment -v "' + cmnt + '" ' + full_name
 subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]
+
+# remove the write premissions if they were added
+if prem_mod == 1:
+  cmd = "chmod u-w " + full_name        
+  chmod_output = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True,executable='/bin/bash').communicate()[0]     

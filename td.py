@@ -51,35 +51,37 @@ n = len(tree_ls)
 path_ls = []
 path_ls.append(pwd)
 direc = pwd
+direc_ls = []
+direc_ls.append(pwd)
+#direc_ls.append(" ")
+pattern = re.compile('\xe2\x94\x82\xc2\xa0\xc2\xa0|\xe2\x94\x9c\xe2\x94\x80\xe2\x94\x80|\xe2\x94\x94\xe2\x94\x80\xe2\x94\x80|    ')
 for i in range(1,n-3):
   
-  nsp_i = tree_ls[i].rfind(" ")
-  nsp_ip1 = tree_ls[i+1].rfind(" ")
+  #print repr(tree_color[i])
   
-  if nsp_i == nsp_ip1:
-    file_name = direc + "/" + tree_ls[i].strip()
-    path_ls.append(file_name)    
-  elif nsp_i < nsp_ip1:
-    direc = direc + "/" + tree_ls[i].strip()
-    path_ls.append(direc)
-  elif nsp_i > nsp_ip1:
-    file_name = direc + "/" + tree_ls[i].strip()
-    path_ls.append(file_name)
-    diff = nsp_i-nsp_ip1
-    if diff == 3:      
-      direc = direc.rpartition("/")[0]
-    else: 
-      depth = 0
-      while diff > 0 and (diff % 4) != 0:
-        diff = diff - 3
-        depth = depth + 1
-      while diff > 0: 
-        diff = diff - 4
-        depth = depth + 1
-      direc_sp = direc.split("/")
-      ndirec = len(direc_sp)
-      direc = "/".join(direc.split("/")[0:ndirec-depth])
+  nsp_i = len(pattern.findall(tree_color[i]))
+  nsp_im1 = len(pattern.findall(tree_color[i-1]))  
+
+  item = re.sub(" ","\ ",tree_ls[i].strip())
+  
+  if nsp_i == nsp_im1:
+    direc_ls.pop()
+    direc_ls.append(item)
+    #print 'Same level'
+  elif nsp_im1 < nsp_i:
+    direc_ls.append(item)
+    #print 'Up level'
+  elif nsp_i < nsp_im1:
+    #print 'Down level'
+    diff = nsp_im1-nsp_i
+    for i in range(0,diff+1):
+      direc_ls.pop()
+    direc_ls.append(item)      
       
+    
+  file_name = '/'.join(direc_ls) 
+  path_ls.append(file_name)
+    
       
     
 # get extended attributes    
@@ -93,15 +95,17 @@ for i in range(0,n):
   if getfattr_output:
     file_info = filter(None,getfattr_output.split("\n")) # split the file information
     for j in range(1,len(file_info)):  # loop through list of attribute values (begins on second line)
-                                     # the loop probably isn't necessary because this fcmnt.py only uses the user.comment attribute
-      ind = file_info[j].find("=")  # find where comment begins: "user.comment="comments"
-      descrip = file_info[j].replace(file_info[j][:ind+1],"") # remove the name of the extended attribute
-      comment = descrip.replace('"','').split(r"\012") # split lines and remove quotes
-      while comment[-1] == "":
-        comment.pop()
-      if comment[0] == "":
-        comment.pop(0)
-      desc_ls[i].append(comment)  
+                                       # just in case other attributes are set, sfd.py only uses the user.comment attribute
+      ind = file_info[j].find("user.comment=")
+      if ind >= 0:
+        ind = ind+len("user.comment=")                           # find where comment begins: "user.comment="comments"
+        descrip = file_info[j].replace(file_info[j][:ind+1],"")  # remove the name of the extended attribute
+        comment = descrip.replace('"','').split(r"\012")         # split lines and remove quotes
+        while comment[-1] == "":
+          comment.pop()
+        if comment[0] == "":
+          comment.pop(0)
+        desc_ls[i].append(comment)  
 
 #print pprint.pprint(tree_ls)
 #print pprint.pprint(path_ls)

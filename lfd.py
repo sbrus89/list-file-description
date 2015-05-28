@@ -34,20 +34,22 @@ getfattr_sp = filter(None,getfattr_output.split("# file:")) # split the output f
 files = {}
 for i in range(0,len(getfattr_sp)): # loop though all files with extended attributes
   file_info = filter(None,getfattr_sp[i].split("\n")) # split the file information
-  full_name = file_info[0]  # first line is: # file: /path/file
-  name = full_name.split("/")[-1] # find the name of the file at the end of the path
+  full_name = file_info[0]                            # first line is: # file: /path/file
+  name = full_name.split("/")[-1]                     # find the name of the file at the end of the path
   files[name] = []
   
   for i in range(1,len(file_info)):  # loop through list of attribute values (begins on second line)
-                                     # the loop probably isn't necessary because this fcmnt.py only uses the user.comment attribute
-    ind = file_info[i].find("=")  # find where comment begins: "user.comment="comments"
-    descrip = file_info[i].replace(file_info[i][:ind+1],"") # remove the name of the extended attribute
-    comment = descrip.replace('"','').split(r"\012") # split lines and remove quotes
-    while comment[-1] == "":
-      comment.pop()
-    if comment[0] == "":
-      comment.pop(0)
-    files[name].append(comment)
+                                     # Just in case other attributes are set, sfd.py only uses the user.comment attribute
+    ind = file_info[i].find("user.comment=")                                      
+    if ind >= 0:
+      ind = ind+len("user.comment=")                          # find where comment begins: "user.comment="comments"
+      descrip = file_info[i].replace(file_info[i][:ind+1],"") # remove the name of the extended attribute
+      comment = descrip.replace('"','').split(r"\012")        # split lines and remove quotes
+      while comment[-1] == "":
+        comment.pop()
+      if comment[0] == "":
+        comment.pop(0)
+      files[name].append(comment)
 
     
 #pprint.pprint(files)   
@@ -56,16 +58,16 @@ print " "
 print "--------------------------------------------------------"
 for line in ls_sp[1:]: # loop through lines of ls output
   line_sp = line.split()
-  name = ansi_escape.sub("",line_sp[-1]) # remove ansi color codes before checking for dictionary key
+  name = ansi_escape.sub("",line_sp[-1])            # remove ansi color codes before checking for dictionary key
   if line_sp[-1][0:4] == "\x1b[0m":
     line_sp[-1] = line_sp[-1].replace("\x1b[0m","") # some names won't print with underline because they begin with \x1b[0m
-  line_sp[-1] = UNDERLINE + line_sp[-1] + ENDC # add underline
+  line_sp[-1] = UNDERLINE + line_sp[-1] + ENDC      # add underline
   #print repr(line_sp[-1]) # print with ansi codes
   line = " ".join(line_sp)
-  print line # print ls output line
+  print line                                        # print ls output line
   if name in files: 
     for comment in files[name]:
-      for text in comment: # print lines of each extended attribute comment
+      for text in comment:                          # print lines of each extended attribute comment
 	print YELLOW + "    " + text + ENDC
   print " "
 	
